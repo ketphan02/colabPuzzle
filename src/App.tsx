@@ -1,5 +1,5 @@
 import React from 'react';
-import { PuzzlePiece, Puzzle } from './components';
+import { PuzzlePiece, Puzzle, Header } from './components';
 
 type PuzzlePieceProps = {
   positions: [number, number][];
@@ -62,8 +62,13 @@ const App = (props: AppProps) => {
   const IMG_SIZE: [number, number] = [pieceSize * numRows, pieceSize * numCols];
 
   const randomPosition = () => {
+    const availableWidth = (window.innerWidth - PUZZLE_SIZE) / 2;
+
     const x = Math.floor(Math.random() * (window.innerHeight - pieceSize - 10));
-    const y = Math.floor(Math.random() * (window.innerWidth - pieceSize - 10 - PUZZLE_SIZE) + PUZZLE_SIZE);
+    const y = Math.random() > .5
+      ? Math.floor(Math.random() * (availableWidth - pieceSize))
+      : Math.floor(Math.random() * (availableWidth - pieceSize)) + availableWidth + PUZZLE_SIZE;
+
     return [x, y];
   }
   const positions = React.useRef(Array.from({ length: numCols * numRows }, () => randomPosition()) as [number, number][]);
@@ -86,9 +91,26 @@ const App = (props: AppProps) => {
   );
 }
 
+const RANDOM_PAINTINGS = [
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg',
+  'https://mymodernmet.com/wp/wp-content/uploads/2020/10/delacroix-liberty-1.jpg',
+  'https://www.creativelive.com/blog/wp-content/uploads/2018/08/AdobeStock_89641238-620x413.jpeg',
+  'https://i0.wp.com/bookmypainting.com/wp-content/uploads/2019/06/the-persistence-of-memory-the-famous-painting-2.jpeg?resize=566%2C430&ssl=1',
+  'https://i.pinimg.com/originals/88/01/15/880115aa48590cb0039bc86bd4e2bfaf.jpg',
+  'https://th-thumbnailer.cdn-si-edu.com/0QiZVVAXyhRwys9S45_LdWq5Fjc=/fit-in/1600x0/https://tf-cmsv2-smithsonianmag-media.s3.amazonaws.com/filer/45/f2/45f224a9-83e0-470e-8388-3de5eeb6428b/air_pump.jpg',
+];
+
 const PreApp = () => {
   return (
-    <App numRows={5} numCols={5} puzzleImage={'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg'} />
+    <div style={{ display: 'flex', flexDirection: 'column', overflow: 'none',  }}>
+      <div>
+        <Header />
+      </div>
+      <div>
+      <App numRows={5} numCols={5} puzzleImage={RANDOM_PAINTINGS[Math.floor(Math.random() * RANDOM_PAINTINGS.length)]} />
+
+      </div>
+    </div>
   );
 }
 

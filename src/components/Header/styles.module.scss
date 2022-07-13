@@ -1,0 +1,40 @@
+.wrapper {
+  position: absolute;
+  top: 0;
+  margin: 0;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  height: 130px;
+  flex-direction: column;
+  align-items: center;
+
+  .title > p {
+    font-weight: bold;
+    font-size: 3rem;
+    margin: 0;
+  }
+
+  .searchBar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    input {
+      width: 40vw;
+      height: 1.6rem;
+      text-align: center;
+      font-size: 1.1rem;
+      border-radius: .3rem;
+      color: grey
+    }
+    button {
+      margin-top: .5rem;
+      height: 2rem;
+      width: 6rem;
+      border-radius: .3rem;
+      font-size: 1rem;
+    }
+  }
+}
