@@ -2,28 +2,40 @@ import React from 'react';
 import { PuzzlePiece, Puzzle } from './components';
 
 type PuzzlePieceProps = {
-  colors: string[];
   positions: [number, number][];
   topDepth: number;
   setTopDepth: React.Dispatch<React.SetStateAction<number>>;
   gridPositions: [number, number][];
+  puzzleImage: string; // TODO: This will become a blob
+  puzzleImageSize: [number, number];
+  numPieces: [number, number];
+  pieceSize: number;
 };
 
+const _getLocationFromIndex = (index: number, numPieces: [number, number]): [number, number] => {
+  const row = Math.floor(index / numPieces[0]);
+  const col = index % numPieces[0];
+  return [row, col];
+}
+
 const PuzzlePieces = (props: PuzzlePieceProps) => {
-  const { colors, positions, topDepth, setTopDepth, gridPositions } = props;
+  const { positions, topDepth, setTopDepth, gridPositions, puzzleImage, puzzleImageSize, numPieces, pieceSize } = props;
   return (
     <>
-      {colors.map((color, index) => {
+      {Array.from({ length: numPieces[0] * numPieces[1] }).map((_, index) => {
         return (
           <PuzzlePiece
             key={index}
             id={`piece-${index}`}
-            height={200}
-            width={200}
-            startPosition={{ top: positions[index][0], left: positions[index][1], color }}
+            height={pieceSize}
+            width={pieceSize}
+            startPosition={{ top: positions[index][0], left: positions[index][1] }}
             topDepth={topDepth}
             setTopDepth={setTopDepth}
             gridPositions={gridPositions}
+            puzzleImage={puzzleImage}
+            puzzleImageSize={puzzleImageSize}
+            location={_getLocationFromIndex(index, numPieces)}
           />
         );
       }
@@ -32,24 +44,52 @@ const PuzzlePieces = (props: PuzzlePieceProps) => {
   );
 }
 
-const App = () => {
+type AppProps = {
+  puzzleImage: string;
+  numRows: number;
+  numCols: number;
+}
+
+const App = (props: AppProps) => {
+  const { puzzleImage, numRows, numCols } = props;
+
   const [topDepth, setTopDepth] = React.useState(0);
   const [gridPositions, setGridPositions] = React.useState<[number, number][]>([]);
-  // 9 random colors
-  const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#00ffff', '#ff00ff', 'grey', '#000000', '#ffa500'];
+
+  // Configurations
+  const PUZZLE_SIZE = 800;
+  const pieceSize = PUZZLE_SIZE / numRows; // Standard
+  const IMG_SIZE: [number, number] = [pieceSize * numRows, pieceSize * numCols];
+
   const randomPosition = () => {
-    const x = Math.floor(Math.random() * (window.innerHeight - 200));
-    const y = Math.floor(Math.random() * (window.innerWidth - 200));
+    const x = Math.floor(Math.random() * (window.innerHeight - pieceSize - 10));
+    const y = Math.floor(Math.random() * (window.innerWidth - pieceSize - 10 - PUZZLE_SIZE) + PUZZLE_SIZE);
     return [x, y];
   }
-  const positions = React.useRef(Array.from({ length: 9 }, () => randomPosition()) as [number, number][]);
+  const positions = React.useRef(Array.from({ length: numCols * numRows }, () => randomPosition()) as [number, number][]);
+
 
   return (
     <>
-      <PuzzlePieces colors={colors} positions={positions.current} topDepth={topDepth} setTopDepth={setTopDepth} gridPositions={gridPositions} />
-      <Puzzle setGridPositions={setGridPositions} />
+      <PuzzlePieces
+        positions={positions.current}
+        topDepth={topDepth}
+        setTopDepth={setTopDepth}
+        gridPositions={gridPositions}
+        puzzleImage={puzzleImage}
+        puzzleImageSize={IMG_SIZE}
+        numPieces={[numRows, numCols]}
+        pieceSize={pieceSize}
+      />
+      <Puzzle setGridPositions={setGridPositions} numRows={numRows} numCols={numCols} width={pieceSize} height={pieceSize} />
     </>
   );
 }
 
-export default App;
+const PreApp = () => {
+  return (
+    <App numRows={5} numCols={5} puzzleImage={'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg'} />
+  );
+}
+
+export default PreApp;

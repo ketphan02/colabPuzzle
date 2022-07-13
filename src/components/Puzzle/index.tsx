@@ -3,14 +3,14 @@ import styles from './styles.module.scss';
 
 type PuzzleProps = {
   setGridPositions: React.Dispatch<React.SetStateAction<[number, number][]>>;
+  numRows: number;
+  numCols: number;
+  width: number;
+  height: number;
 };
 
 const Puzzle = (props: PuzzleProps) => {
-  const numRows = 3; // TODO: get this from props
-  const numCols = 3; // TODO: get this from props
-  const width = 200; // TODO: get this from props
-  const height = 200; // TODO: get this from props
-  const { setGridPositions } = props;
+  const { setGridPositions, numRows, numCols, width, height } = props;
   const childRefs = [...Array.from({ length: numCols * numRows })].map(() => React.createRef<HTMLDivElement>());
 
   React.useEffect(() => {

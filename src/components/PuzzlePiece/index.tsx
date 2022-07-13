@@ -8,15 +8,27 @@ type PuzzlePieceProps = {
   startPosition: {
     top: number;
     left: number;
-    color?: string;
   };
   topDepth: number;
   setTopDepth: React.Dispatch<React.SetStateAction<number>>;
   gridPositions: [number, number][];
+  puzzleImage: string; // TODO: This will become a blob
+  puzzleImageSize: [number, number];
+  location: [number, number]; // [row, col]
 };
 
 const PuzzlePiece = (puzzleProps: PuzzlePieceProps) => {
-  const { id, height, width, startPosition, topDepth, setTopDepth } = puzzleProps;
+  const {
+    id, // This should not be used since it's too obvious // TODO: Hash this
+    height,
+    width,
+    startPosition,
+    topDepth,
+    setTopDepth,
+    puzzleImage,
+    puzzleImageSize,
+    location,
+  } = puzzleProps;
 
   const [isDragging, setIsDragging] = React.useState(false);
   const [zIndex, setZIndex] = React.useState(0);
@@ -63,15 +75,19 @@ const PuzzlePiece = (puzzleProps: PuzzlePieceProps) => {
       style={{
         top: startPosition.top,
         left: startPosition.left,
-        backgroundColor: startPosition.color,
         zIndex: zIndex,
         height: HEIGHT,
-        width: WIDTH
+        width: WIDTH,
+        overflow: 'hidden'
       }}
       onMouseDown={handleOnDragStart}
       onMouseUp={handleOnDragEnd}
       onMouseMoveCapture={handleWhileDragging}
     >
+      <img src={puzzleImage} alt="puzzle" width={puzzleImageSize[1]} height={puzzleImageSize[0]} style={{
+        marginTop: `-${HEIGHT * location[1]}px`,
+        marginLeft: `-${WIDTH * location[0]}px`,
+      }}/>
     </div >
   );
 }
