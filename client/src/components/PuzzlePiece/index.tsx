@@ -61,8 +61,8 @@ const PuzzlePiece = (puzzleProps: PuzzlePieceProps) => {
     for (const element of puzzleProps.gridPositions) {
       const [gridX, gridY] = element;
       if (_calculateDistance(clientX, clientY, gridX, gridY) < 50) {
-        e.currentTarget.style.left = `${gridX + 2}px`;
-        e.currentTarget.style.top = `${gridY + 2}px`;
+        e.currentTarget.style.left = `${gridX + 1}px`;
+        e.currentTarget.style.top = `${gridY + 1}px`;
         return;
       }
     }

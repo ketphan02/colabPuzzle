@@ -22,8 +22,9 @@ const Puzzle = (props: PuzzleProps) => {
       }
     });
     setGridPositions(positions);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setGridPositions]);
+
 
   return (
     <div className={styles.wrapper}>
@@ -36,7 +37,7 @@ const Puzzle = (props: PuzzleProps) => {
                   className={styles.puzzlePiece}
                   ref={childRefs[rowIndex * numCols + colIndex]}
                   key={colIndex}
-                  style={{ width: width, height: height, border: '2px solid black' }}>
+                  style={{ width: width, height: height, border: '1px solid black' }}>
                 </div>
               );
             })}

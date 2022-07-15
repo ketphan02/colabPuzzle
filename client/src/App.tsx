@@ -107,8 +107,8 @@ const PreApp = () => {
         <Header />
       </div>
       <div>
-      <App numRows={5} numCols={5} puzzleImage={RANDOM_PAINTINGS[Math.floor(Math.random() * RANDOM_PAINTINGS.length)]} />
-
+      <App numRows={8} numCols={8} puzzleImage={RANDOM_PAINTINGS[Math.floor(Math.random() * RANDOM_PAINTINGS.length)]} />
+      {/* <App numRows={2} numCols={4} puzzleImage={'https://media-exp1.licdn.com/dms/image/C4E03AQEiJgoaUt3kiA/profile-displayphoto-shrink_800_800/0/1584653176013?e=1663200000&v=beta&t=CJ2JSjLnwmQbXVfhMGs3evJ5MP-cje4Xdrad6vAyZWs'} /> */}
       </div>
     </div>
   );
