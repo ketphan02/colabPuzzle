@@ -1,13 +1,16 @@
 import * as React from 'react';
 import styles from './styles.module.scss';
 
+import socket from '../../utils/getSocket';
+
 type PuzzlePieceProps = {
   id: string;
   height: number;
   width: number;
   startPosition: {
-    top: number;
-    left: number;
+    top: string;
+    left: string;
+    opacity?: number;
   };
   topDepth: number;
   setTopDepth: React.Dispatch<React.SetStateAction<number>>;
@@ -40,6 +43,15 @@ const PuzzlePiece = (puzzleProps: PuzzlePieceProps) => {
     setZIndex(topDepth + 1);
     setTopDepth(topDepth + 1);
     setIsDragging(true);
+
+    socket.emit('puzzleMove', {
+      sender: socket.id,
+      newPiece: Object.assign({
+        id: e.currentTarget.id,
+        startPosition: { top: e.currentTarget.style.top, left: e.currentTarget.style.left, opcacity: 50 }
+      }, puzzleProps),
+    });
+
   }
 
   const handleWhileDragging = (e: React.DragEvent<HTMLDivElement>) => {
@@ -55,17 +67,34 @@ const PuzzlePiece = (puzzleProps: PuzzlePieceProps) => {
 
   const handleOnDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
     setIsDragging(false);
-    console.log('drag end');
     const clientX = e.clientX - WIDTH / 2;
     const clientY = e.clientY - HEIGHT / 2;
+    console.log("drag end: ", clientX, clientY);
+    let speacialLocTop, speacialLocLeft;
     for (const element of puzzleProps.gridPositions) {
       const [gridX, gridY] = element;
       if (_calculateDistance(clientX, clientY, gridX, gridY) < 50) {
-        e.currentTarget.style.left = `${gridX + 1}px`;
+        e.currentTarget.style.left = `${gridX + .5}px`;
         e.currentTarget.style.top = `${gridY + 1}px`;
-        return;
+        speacialLocLeft = `${gridX + 1}px`;
+        speacialLocTop = `${gridY + .5}px`;
+        break;
       }
     }
+
+    socket.emit('puzzleDrop', {
+      sender: socket.id,
+      newPiece: {
+        ...puzzleProps, ...{
+          startPosition: {
+            id: e.currentTarget.id,
+            top: speacialLocTop || `${e.currentTarget.style.top}px`,
+            left: speacialLocLeft || `${e.currentTarget.style.left}px`,
+            opcacity: 100
+          }
+        }
+      }
+    });
   }
 
   return (
@@ -73,6 +102,7 @@ const PuzzlePiece = (puzzleProps: PuzzlePieceProps) => {
       id={id}
       className={styles.wrapper}
       style={{
+        position: 'absolute',
         top: startPosition.top,
         left: startPosition.left,
         zIndex: zIndex,
@@ -87,7 +117,7 @@ const PuzzlePiece = (puzzleProps: PuzzlePieceProps) => {
       <img src={puzzleImage} alt="puzzle" width={puzzleImageSize[1]} height={puzzleImageSize[0]} style={{
         marginTop: `-${HEIGHT * location[1]}px`,
         marginLeft: `-${WIDTH * location[0]}px`,
-      }}/>
+      }} />
     </div >
   );
 }

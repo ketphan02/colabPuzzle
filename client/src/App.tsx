@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { PuzzlePiece, Puzzle, Header } from './components';
+import socket from './utils/getSocket';
 
 type PuzzlePieceProps = {
   positions: [number, number][];
@@ -20,27 +21,68 @@ const _getLocationFromIndex = (index: number, numPieces: [number, number]): [num
 
 const PuzzlePieces = (props: PuzzlePieceProps) => {
   const { positions, topDepth, setTopDepth, gridPositions, puzzleImage, puzzleImageSize, numPieces, pieceSize } = props;
-  return (
-    <>
-      {Array.from({ length: numPieces[0] * numPieces[1] }).map((_, index) => {
-        return (
-          <PuzzlePiece
-            key={index}
-            id={`piece-${index}`}
-            height={pieceSize}
-            width={pieceSize}
-            startPosition={{ top: positions[index][0], left: positions[index][1] }}
-            topDepth={topDepth}
-            setTopDepth={setTopDepth}
-            gridPositions={gridPositions}
-            puzzleImage={puzzleImage}
-            puzzleImageSize={puzzleImageSize}
-            location={_getLocationFromIndex(index, numPieces)}
-          />
-        );
+
+  const [pieces, setPieces] = React.useState<JSX.Element[]>([]);
+
+  useEffect(() => {
+    const children = Array.from({ length: numPieces[0] * numPieces[1] }).map((_, index) => {
+      return (
+        <PuzzlePiece
+          key={index}
+          id={`piece-${index}`}
+          height={pieceSize}
+          width={pieceSize}
+          startPosition={{ top: document.getElementById(`piece-${index}`)?.style.top ||  positions[index][0] + "px", left: document.getElementById(`piece-${index}`)?.style.left ||  positions[index][1] + "px" }}
+          topDepth={topDepth}
+          setTopDepth={setTopDepth}
+          gridPositions={gridPositions}
+          puzzleImage={puzzleImage}
+          puzzleImageSize={puzzleImageSize}
+          location={_getLocationFromIndex(index, numPieces)}
+        />
+      );
+    }
+    );
+    setPieces(() => children);
+  }, [gridPositions, numPieces, pieceSize, positions, puzzleImage, puzzleImageSize, setTopDepth, topDepth]);
+
+  useEffect(() => {
+    socket.on('puzzleMove', (data) => { 
+    });
+
+
+    socket.on('puzzleDrop', (data) => {
+      const { newPiece } = data;
+      const children = [...pieces];
+      const index = children.findIndex((piece) => piece.key?.toString() === newPiece.id?.toString().replace('piece-', ''));
+      // slice the piece out of the array
+      if (index >= 0) {
+        console.log("dropping: ", newPiece.startPosition);
+        children.splice(index, 1, React.createElement(PuzzlePiece, {
+          key: index,
+          id: `piece-${index}`,
+          height: newPiece.height,
+          width: newPiece.width,
+          startPosition: newPiece.startPosition,
+          topDepth: topDepth,
+          setTopDepth: setTopDepth,
+          gridPositions: gridPositions,
+          puzzleImage: newPiece.puzzleImage,
+          puzzleImageSize: newPiece.puzzleImageSize,
+          location: _getLocationFromIndex(index, numPieces)
+        }));
+        setPieces(() => children);
       }
-      )}
-    </>
+    });
+
+    return () => {
+      socket.off('puzzleMove');
+      socket.off('puzzleDrop');
+    }
+  }, [gridPositions, numPieces, pieces, setTopDepth, topDepth]);
+
+  return (
+    <> {pieces} </>
   );
 }
 
@@ -102,13 +144,12 @@ const RANDOM_PAINTINGS = [
 
 const PreApp = () => {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', overflow: 'none',  }}>
+    <div style={{ display: 'flex', flexDirection: 'column', overflow: 'none', }}>
       <div>
         <Header />
       </div>
       <div>
-      <App numRows={8} numCols={8} puzzleImage={RANDOM_PAINTINGS[Math.floor(Math.random() * RANDOM_PAINTINGS.length)]} />
-      {/* <App numRows={2} numCols={4} puzzleImage={'https://media-exp1.licdn.com/dms/image/C4E03AQEiJgoaUt3kiA/profile-displayphoto-shrink_800_800/0/1584653176013?e=1663200000&v=beta&t=CJ2JSjLnwmQbXVfhMGs3evJ5MP-cje4Xdrad6vAyZWs'} /> */}
+        <App numRows={2} numCols={2} puzzleImage={RANDOM_PAINTINGS[Math.floor(Math.random() * RANDOM_PAINTINGS.length)]} />
       </div>
     </div>
   );
